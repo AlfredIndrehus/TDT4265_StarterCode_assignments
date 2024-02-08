@@ -156,11 +156,30 @@ def main():
     # You can finish the rest of task 4 below this point.
 
     # Plotting of softmax weights (Task 4b)
-    # plt.imsave("task4b_softmax_weight.png", weight, cmap="gray")
+    #plt.imsave("task4b_softmax_weight.png", weight, cmap="gray")
 
     # Plotting of accuracy for difference values of lambdas (task 4c)
     l2_lambdas = [1, .1, .01, .001]
+    model_trainers = []
+    train_histories = []
+    val_histories = []
+    
+    for lam in l2_lambdas:
+        model = SoftmaxModel(l2_reg_lambda=lam)
+        trainer = SoftmaxTrainer(model, learning_rate, batch_size, shuffle_dataset, X_train, Y_train, X_val, Y_val)
+        train_history, val_history = trainer.train(num_epochs)
+        model_trainers.append(trainer)
+        train_histories.append(train_history)
+        val_histories.append(val_history)
+
+    for lam, val_history in zip(l2_lambdas, val_histories):
+        utils.plot_loss(val_history["accuracy"], label=f"λ={lam}")
+
+    plt.xlabel("Number of Training StepsX")
+    plt.ylabel("AccuracyY")
+    plt.legend()
     plt.savefig("task4c_l2_reg_accuracy.png")
+    plt.show()
 
     # Task 4d - Plotting of the l2 norm for each weight
 
