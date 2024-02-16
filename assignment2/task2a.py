@@ -14,7 +14,16 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784, f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
-    return X
+ 
+    mean = np.mean(X)
+    std = np.std(X)
+    X_norm = (X-mean)/(std)
+
+    #bias trick
+    bias_column = np.ones((X_norm.shape[0], 1))
+    X_norm = np.concatenate((X_norm, bias_column), axis=1)
+    return X_norm
+
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
