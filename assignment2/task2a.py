@@ -22,6 +22,8 @@ def pre_process_images(X: np.ndarray):
     #bias trick
     bias_column = np.ones((X_norm.shape[0], 1))
     X_norm = np.concatenate((X_norm, bias_column), axis=1)
+    
+    assert X_norm.shape[1] == 785, f"X.shape[1]: {X.shape[1]}, should be 785 (after bias trick)"
     return X_norm
 
 
@@ -55,7 +57,7 @@ class SoftmaxModel:
             1
         )  # Always reset random seed before weight init to get comparable results.
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
@@ -71,10 +73,18 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.zeros(w_shape)
+            #w = np.zeros(w_shape)
+            w = np.random.randn(*w_shape) * 0.01
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+        #new ones;
+        self.hidden_layer_output = []
+        self.neurons_hidden_layer = self.neurons_per_layer[0]
+        self.neurons_output_layer = self.neurons_per_layer[1]
+        self.hidden_layer_w =self.ws[0]
+        self.output_layer_w =self.ws[1]
+
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -83,10 +93,21 @@ class SoftmaxModel:
         Returns:
             y: output of model with shape [batch size, num_outputs]
         """
+
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        return None
+        batch_size= X.shape[0]
+        
+        #emty it, and set correct size
+        self.hidden_layer_output = np.zeros((batch_size, self.neurons_hidden_layer))
+        #Defining the sigmoid function. THis is the one giving output from hidden layer
+        self.hidden_layer_output = 1 / (1 + np.exp(-np.dot(X, self.hidden_layer_w)))
+
+        #Define softmax function. This is the one making predictions for outputlayer
+        z = np.dot(self.hidden_layer_output, self.output_layer_w)
+        y_pred = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
+        return y_pred
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -104,10 +125,13 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         self.grads = []
+
         for grad, w in zip(self.grads, self.ws):
             assert (
                 grad.shape == w.shape
             ), f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
+
+
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
