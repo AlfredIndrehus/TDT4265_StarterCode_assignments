@@ -55,8 +55,9 @@ class SoftmaxTrainer(BaseTrainer):
 
         loss = 0
 
-            self.model.ws[layer_idx] = (
-                self.model.ws[layer_idx] - self.learning_rate * grad
+        self.model.ws[layer_idx] = (
+            self.model.ws[layer_idx] - self.learning_rate * grad
+        )
         loss=cross_entropy_loss(Y_batch, logits)  # sol
 
         return loss

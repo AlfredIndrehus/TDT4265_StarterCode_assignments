@@ -38,7 +38,6 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     """
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    #cross entropy loss (multi-class).
     cross_entropy = -np.sum(targets*np.log(outputs), axis=1)
     return np.mean(cross_entropy)
 
@@ -73,17 +72,16 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            #w = np.zeros(w_shape)
-            w = np.random.randn(*w_shape) * 0.01
+            w = np.zeros(w_shape)
+            #w = np.random.randn(*w_shape) * 0.01
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
         #new ones;
         self.hidden_layer_output = []
+        self.output_layer_outputs = []
         self.neurons_hidden_layer = self.neurons_per_layer[0]
         self.neurons_output_layer = self.neurons_per_layer[1]
-        self.hidden_layer_w =self.ws[0]
-        self.output_layer_w =self.ws[1]
 
 
     def forward(self, X: np.ndarray) -> np.ndarray:
@@ -99,15 +97,21 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         batch_size= X.shape[0]
         
-        #emty it, and set correct size
-        self.hidden_layer_output = np.zeros((batch_size, self.neurons_hidden_layer))
-        #Defining the sigmoid function. THis is the one giving output from hidden layer
-        self.hidden_layer_output = 1 / (1 + np.exp(-np.dot(X, self.hidden_layer_w)))
+        #input to hidden layer.
+        z2= -np.dot(X, self.ws[0])
+        #output from hidden layer (using sigmoid func)
+        a2= 1 / (1 + np.exp(z2))
+        #save it to self for use in backward function
+        self.hidden_layer_output=a2
 
-        #Define softmax function. This is the one making predictions for outputlayer
-        z = np.dot(self.hidden_layer_output, self.output_layer_w)
-        y_pred = np.exp(z) / np.sum(np.exp(z), axis=1, keepdims=True)
-        return y_pred
+        #input to outputlayer
+        z3 = np.dot(a2, self.ws[1])
+        #outout from outputlayer = predictions
+        a3 = np.exp(z3) / np.sum(np.exp(z3), axis=1, keepdims=True)
+        #save it to self
+        self.output_layer_outputs = a3
+
+        return a3
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -124,7 +128,20 @@ class SoftmaxModel:
         ), f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
-        self.grads = []
+        
+        batch_size = X.shape[0]
+
+        #output layer
+        error_output = outputs - targets
+        self.grads[1] = np.dot(self.hidden_layer_output.T, error_output) / batch_size
+        
+
+        #hidden layer (using chain rule)
+        error_hidden = np.dot(error_output, self.ws[1].T)
+        d_sigmoid_hidden = self.hidden_layer_output * (1- self.hidden_layer_output)
+        grad_hidden = error_hidden * d_sigmoid_hidden
+        self.grads[0] = np.dot(X.T, grad_hidden) / (batch_size)
+
 
         for grad, w in zip(self.grads, self.ws):
             assert (
