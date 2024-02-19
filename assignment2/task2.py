@@ -19,7 +19,22 @@ def calculate_accuracy(
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
+    Y_pred = model.forward(X)
+
+
+    '''
+    Here, the program finds the indices of the maximum value across the columns for each row with np.argmax, both for
+    the predictions and the targets. Then it sums up how many of these are equal
+    '''
+    predicted_classes = np.argmax(Y_pred, axis=1)
+    actual_classes = np.argmax(targets, axis=1)
+    Y_correct = np.sum(np.equal(predicted_classes, actual_classes))
+    
+    accuracy = Y_correct/Y_pred.shape[0]
+
+    return accuracy
+    
+         
     return accuracy
 
 
