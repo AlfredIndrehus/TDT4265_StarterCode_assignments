@@ -41,18 +41,21 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     cross_entropy = -np.sum(targets*np.log(outputs), axis=1)
     return np.mean(cross_entropy)
 
+ 
 #Task 3b) defining improved sigmoid function and derivative
 def sigmoid(self, x):
     return 1 / (1 + np.exp(-x))
 def improved_sigmoid(self, x):
     return 1.7159 * np.tanh(2/3 * x)
 
-def sigmoid_derivative(self, x):
+def sigmoid_derivative(self,  x):
     return x * (1 - x)
 def improved_sigmoid_derivative(self, x):
     return 1.7159 * 2/3 * (1 - np.tanh(2/3 * x)**2)
 
 class SoftmaxModel:
+    
+   
 
     def __init__(
         self,
@@ -131,7 +134,11 @@ class SoftmaxModel:
         #input to hidden layer.
         z2= -np.dot(X, self.ws[0])
         #output from hidden layer (using sigmoid func)
+        #a2= self.sigmoid(z2)
+        
+        #output from hidden layer (using sigmoid func)
         a2= 1 / (1 + np.exp(z2))
+        
         #save it to self for use in backward function
         self.hidden_layer_output=a2
 

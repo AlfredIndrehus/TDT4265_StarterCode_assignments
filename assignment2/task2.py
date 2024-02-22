@@ -132,7 +132,7 @@ def main():
     Y_train=one_hot_encode(Y_train, 10)
     Y_val=one_hot_encode(Y_val, 10)
     # Hyperparameters
-
+    
     model=SoftmaxModel(
         neurons_per_layer, use_improved_sigmoid, use_improved_weight_init, use_relu
     )
