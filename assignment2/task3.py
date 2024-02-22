@@ -11,6 +11,7 @@ def main():
     batch_size = 32
     neurons_per_layer = [64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
+    
     shuffle_data = True
 
     use_improved_sigmoid = False
@@ -71,8 +72,7 @@ def main():
     plt.ylabel("Validation Accuracy")
     plt.legend()
     plt.show()
-        use_improved_weight_init,
-    labels.append(
+        
 
 
 if __name__ == "__main__":

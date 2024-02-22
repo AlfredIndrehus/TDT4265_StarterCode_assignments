@@ -54,6 +54,9 @@ class SoftmaxTrainer(BaseTrainer):
         # Init a history of previous gradients to use for implementing momentum
         self.previous_grads = [np.zeros_like(w) for w in self.model.ws]
 
+
+    
+
     def train_step(self, X_batch: np.ndarray, Y_batch: np.ndarray):
         """
         Perform forward, backward and gradient descent step here.
@@ -72,9 +75,16 @@ class SoftmaxTrainer(BaseTrainer):
         self.model.backward(X_batch, logits, Y_batch)
         
         for i in range(len(self.model.ws)):
-            self.model.ws[i] -= self.learning_rate * self.model.grads[i]
-
-
+            
+            #Task 3d
+            if self.use_momentum:
+                self.model.ws[i] -= self.momentum_gamma * self.previous_grads[i]
+                #Update the previous_grads to the current grads
+                self.previous_grads[i] = self.model.grads[i]
+            #Original from 2c   
+            else: 
+                self.model.ws[i] -= self.learning_rate * self.model.grads[i]
+    
         loss=cross_entropy_loss(Y_batch, logits)  # sol
         return loss
 
@@ -139,7 +149,7 @@ def main():
         Y_val,
     )
     train_history, val_history=trainer.train(num_epochs)
-
+    
     print(
         "Final Train Cross Entropy Loss:",
         cross_entropy_loss(Y_train, model.forward(X_train)),
