@@ -78,9 +78,10 @@ class SoftmaxTrainer(BaseTrainer):
             
             #Task 3d
             if self.use_momentum:
-                self.model.ws[i] -= self.momentum_gamma * self.previous_grads[i]
-                #Update the previous_grads to the current grads
-                self.previous_grads[i] = self.model.grads[i]
+                # Update the velocity
+                self.previous_grads[i] = self.momentum_gamma * self.previous_grads[i] + self.learning_rate * self.model.grads[i]
+#                Update the weights
+                self.model.ws[i] -= self.previous_grads[i]
             #Original from 2c   
             else: 
                 self.model.ws[i] -= self.learning_rate * self.model.grads[i]

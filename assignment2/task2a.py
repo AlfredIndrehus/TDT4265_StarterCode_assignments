@@ -130,7 +130,10 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
+
+
         batch_size= X.shape[0]
+
         
         #input to hidden layer.
         z2= np.dot(X, self.ws[0])
@@ -149,6 +152,8 @@ class SoftmaxModel:
         a3 = np.exp(z3) / np.sum(np.exp(z3), axis=1, keepdims=True)
         #save it to self
         self.output_layer_outputs = a3
+
+
 
         return a3
 

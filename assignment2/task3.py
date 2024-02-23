@@ -18,26 +18,7 @@ def main():
     shuffle_data = True
     use_relu = False
 
-    # Load dataset
-    """
-    X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
-    X_train = pre_process_images(X_train)
-    X_val = pre_process_images(X_val)
-    Y_train = one_hot_encode(Y_train, 10)
-    Y_val = one_hot_encode(Y_val, 10)
-
-    model = SoftmaxModel(
-        neurons_per_layer,
-        use_improved_sigmoid,
-        use_improved_weight_init,
-        use_relu)
-    trainer = SoftmaxTrainer(
-        momentum_gamma, use_momentum,
-        model, learning_rate, batch_size, shuffle_data,
-        X_train, Y_train, X_val, Y_val,
-    )
-    train_history, val_history = trainer.train(num_epochs)
-    """
+    
     # Example created for comparing with and without shuffling.
     # For comparison, show all loss/accuracy curves in the same plot
     
@@ -130,18 +111,6 @@ def main():
     train_history3, val_history3 = finaltrainer.train(num_epochs)
     
 
-
-
-    #task 4a and 4b
-    #Training 2 a model with task3 improvements, but different archtecture
-    
-    
-    # YOU CAN DELETE EVERYTHING BELOW!
-    
-
-
-    #Commented out here and changed below for task 4a and 4b
-
     # task 3
     # Plotting the loss and accuracy
     
@@ -165,33 +134,6 @@ def main():
     plt.legend()
     plt.savefig("task3c_train_loss.png")
     plt.show()
-
-
-    #task 4 a and 4b    
-    # Plotting the loss and accuracy (comment the above out)
-    """
-    plt.subplot(1, 2, 1)  
-    plt.ylim([0, 1])
-    
-    utils.plot_loss(train_history1["loss"], "Model without 32 hidden units", npoints_to_average=10)
-    utils.plot_loss(train_history2["loss"], "Model with 128 hidden units", npoints_to_average=10)
-   
-    plt.ylabel("Training Loss")
-    
-    plt.subplot(1, 2, 2)  
-    plt.ylim([0,1])
-    
-    utils.plot_loss(val_history1["accuracy"], "Model without 32 hidden units")
-    utils.plot_loss(val_history2["accuracy"], "Model without 128 hidden unit")
-    plt.ylabel("Validation Accuracy")
-
-
-    plt.legend()
-    plt.savefig("Task4a_and4b.png")
-    plt.show()
-    """
-
-    
 
 
 if __name__ == "__main__":
