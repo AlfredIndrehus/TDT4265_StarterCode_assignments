@@ -18,6 +18,8 @@ def pre_process_images(X: np.ndarray):
     mean = np.mean(X)
     std = np.std(X)
     X_norm = (X-mean)/(std)
+    print("mean: ", mean)
+    print("standard deviation: ", std)
 
     #bias trick
     bias_column = np.ones((X_norm.shape[0], 1))
