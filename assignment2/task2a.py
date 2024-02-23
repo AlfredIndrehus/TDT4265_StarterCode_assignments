@@ -135,13 +135,15 @@ class SoftmaxModel:
         batch_size= X.shape[0]
 
         #input to hidden layer.
+        self.z = []
+        self.a = []
         self.z.append(np.dot(X, self.ws[0]))
         #outp0ut from hidden layer (using sigmoid func), one hidden layer
         self.a.append(self.sigmoid(self.z[0]))
         number_hiddenlayers = len(self.neurons_per_layer) -1
         for i in range(1, number_hiddenlayers):
             self.z.append(np.dot(self.a[i-1], self.ws[i]))
-            self.a.append(self.sigmoid(z[i]))
+            self.a.append(self.sigmoid(self.z[i]))
 
 
         #input to outputlayer
@@ -174,14 +176,6 @@ class SoftmaxModel:
         return self.a[-1]
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
-        """
-        Computes the gradient and saves it to the variable self.grad
-
-        Args:
-            X: images of shape [batch size, 785]
-            outputs: outputs of model of shape: [batch size, num_outputs]
-            targets: labels/targets of each image of shape: [batch size, num_classes]
-        """
         # TODO implement this function (Task 2b)
         assert (
             targets.shape == outputs.shape
@@ -208,7 +202,6 @@ class SoftmaxModel:
             assert (
                 grad.shape == w.shape
             ), f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
-
 
 
     def zero_grad(self) -> None:
