@@ -111,12 +111,14 @@ class SoftmaxModel:
         
         
         #new ones;
-        self.hidden_layer_output = []
-        self.output_layer_outputs = []
-        self.neurons_hidden_layer = self.neurons_per_layer[0]
-        self.neurons_output_layer = self.neurons_per_layer[1]
-        
-        
+        #self.hidden_layer_output = []
+        #self.output_layer_outputs = []
+        #self.neurons_hidden_layer = self.neurons_per_layer[0]
+        #self.neurons_output_layer = self.neurons_per_layer[1]
+
+        # task4
+        self.z = []
+        self.a = []
 
 
     def forward(self, X: np.ndarray) -> np.ndarray:
@@ -130,11 +132,25 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-
-
         batch_size= X.shape[0]
 
+        #input to hidden layer.
+        self.z.append(np.dot(X, self.ws[0]))
+        #outp0ut from hidden layer (using sigmoid func), one hidden layer
+        self.a.append(self.sigmoid(self.z[0]))
+        number_hiddenlayers = len(self.neurons_per_layer) -1
+        for i in range(1, number_hiddenlayers):
+            self.z.append(np.dot(self.a[i-1], self.ws[i]))
+            self.a.append(self.sigmoid(z[i]))
+
+
+        #input to outputlayer
+        self.z.append(np.dot(self.a[-1], self.ws[1]))
+        #outout from outputlayer = predictions
+        self.a.append(np.exp(self.z[-1]) / np.sum(np.exp(self.z[-1]), axis=1, keepdims=True))
+        #save it to self
         
+        """
         #input to hidden layer.
         z2= np.dot(X, self.ws[0])
         #output from hidden layer (using sigmoid func), one hidden layer
@@ -152,10 +168,10 @@ class SoftmaxModel:
         a3 = np.exp(z3) / np.sum(np.exp(z3), axis=1, keepdims=True)
         #save it to self
         self.output_layer_outputs = a3
-
-
-
-        return a3
+        """
+        #self.output_layer_outputs = self.a[-1]
+        #self.hidden_layer_output = self.a[-2]
+        return self.a[-1]
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -177,12 +193,12 @@ class SoftmaxModel:
 
         #output layer
         error_output = outputs - targets
-        self.grads[1] = np.dot(self.hidden_layer_output.T, error_output) / batch_size
+        self.grads[1] = np.dot(self.a[-2].T, error_output) / batch_size
         
 
         #hidden layer (using chain rule)
         error_hidden = np.dot(error_output, self.ws[1].T)
-        d_sigmoid_hidden = self.sigmoid_derivative(self.hidden_layer_output)
+        d_sigmoid_hidden = self.sigmoid_derivative(self.a[-2])
         #d_sigmoid_hidden = self.hidden_layer_output * (1- self.hidden_layer_output)
         grad_hidden = error_hidden * d_sigmoid_hidden
         self.grads[0] = np.dot(X.T, grad_hidden) / (batch_size)
