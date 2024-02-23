@@ -43,14 +43,13 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
 
  
 #Task 3b) defining improved sigmoid function and derivative
-def sigmoid(self, x):
+def sigmoid(x):
     return 1 / (1 + np.exp(-x))
-def improved_sigmoid(self, x):
+def improved_sigmoid(x):
     return 1.7159 * np.tanh(2/3 * x)
-
-def sigmoid_derivative(self,  x):
+def sigmoid_derivative(x):
     return x * (1 - x)
-def improved_sigmoid_derivative(self, x):
+def improved_sigmoid_derivative(x):
     return 1.7159 * 2/3 * (1 - np.tanh(2/3 * x)**2)
 
 class SoftmaxModel:
@@ -81,6 +80,7 @@ class SoftmaxModel:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
         self.neurons_per_layer = neurons_per_layer
 
+
         # Initialize the weights
         self.ws = []
         prev = self.I
@@ -100,13 +100,14 @@ class SoftmaxModel:
         
         #task 3b) improved sigmoid init. Checks if use_improved_sigmoid is true.
         # If not, use normal sigmoid function.
+        
         if self.use_improved_sigmoid:
             self.sigmoid = improved_sigmoid
             self.sigmoid_derivative = improved_sigmoid_derivative
         else:
             self.sigmoid = sigmoid
             self.sigmoid_derivative = sigmoid_derivative
-                     
+                    
         
         
         #new ones;
@@ -132,12 +133,12 @@ class SoftmaxModel:
         batch_size= X.shape[0]
         
         #input to hidden layer.
-        z2= -np.dot(X, self.ws[0])
-        #output from hidden layer (using sigmoid func)
-        #a2= self.sigmoid(z2)
+        z2= np.dot(X, self.ws[0])
+        #output from hidden layer (using sigmoid func), one hidden layer
+        a2= self.sigmoid(z2)
         
         #output from hidden layer (using sigmoid func)
-        a2= 1 / (1 + np.exp(z2))
+        #a2= 1 / (1 + np.exp(z2))
         
         #save it to self for use in backward function
         self.hidden_layer_output=a2
@@ -176,7 +177,8 @@ class SoftmaxModel:
 
         #hidden layer (using chain rule)
         error_hidden = np.dot(error_output, self.ws[1].T)
-        d_sigmoid_hidden = self.hidden_layer_output * (1- self.hidden_layer_output)
+        d_sigmoid_hidden = self.sigmoid_derivative(self.hidden_layer_output)
+        #d_sigmoid_hidden = self.hidden_layer_output * (1- self.hidden_layer_output)
         grad_hidden = error_hidden * d_sigmoid_hidden
         self.grads[0] = np.dot(X.T, grad_hidden) / (batch_size)
 
@@ -263,7 +265,7 @@ def main():
     ), f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
     neurons_per_layer = [64, 10]
-    use_improved_sigmoid = True
+    use_improved_sigmoid = False
     use_improved_weight_init = True
     use_relu = True
     model = SoftmaxModel(
