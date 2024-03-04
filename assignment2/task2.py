@@ -19,7 +19,22 @@ def calculate_accuracy(
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
+    Y_pred = model.forward(X)
+
+
+    '''
+    Here, the program finds the indices of the maximum value across the columns for each row with np.argmax, both for
+    the predictions and the targets. Then it sums up how many of these are equal
+    '''
+    predicted_classes = np.argmax(Y_pred, axis=1)
+    actual_classes = np.argmax(targets, axis=1)
+    Y_correct = np.sum(np.equal(predicted_classes, actual_classes))
+    
+    accuracy = Y_correct/Y_pred.shape[0]
+
+    return accuracy
+    
+         
     return accuracy
 
 
@@ -39,6 +54,9 @@ class SoftmaxTrainer(BaseTrainer):
         # Init a history of previous gradients to use for implementing momentum
         self.previous_grads = [np.zeros_like(w) for w in self.model.ws]
 
+
+    
+
     def train_step(self, X_batch: np.ndarray, Y_batch: np.ndarray):
         """
         Perform forward, backward and gradient descent step here.
@@ -52,8 +70,23 @@ class SoftmaxTrainer(BaseTrainer):
             loss value (float) on batch
         """
         # TODO: Implement this function (task 2c)
-        loss = 0
-
+        
+        logits = self.model.forward(X_batch)
+        self.model.backward(X_batch, logits, Y_batch)
+        
+        for i in range(len(self.model.ws)):
+            
+            #Task 3d
+            if self.use_momentum:
+                # Update the velocity
+                self.previous_grads[i] = self.momentum_gamma * self.previous_grads[i] + self.learning_rate * self.model.grads[i]
+#                Update the weights
+                self.model.ws[i] -= self.previous_grads[i]
+            #Original from 2c   
+            else: 
+                self.model.ws[i] -= self.learning_rate * self.model.grads[i]
+    
+        loss=cross_entropy_loss(Y_batch, logits)  # sol
         return loss
 
     def validation_step(self):
@@ -99,8 +132,8 @@ def main():
     Y_train = one_hot_encode(Y_train, 10)
     Y_val = one_hot_encode(Y_val, 10)
     # Hyperparameters
-
-    model = SoftmaxModel(
+    
+    model=SoftmaxModel(
         neurons_per_layer, use_improved_sigmoid, use_improved_weight_init, use_relu
     )
     trainer = SoftmaxTrainer(
@@ -115,8 +148,8 @@ def main():
         X_val,
         Y_val,
     )
-    train_history, val_history = trainer.train(num_epochs)
-
+    train_history, val_history=trainer.train(num_epochs)
+    
     print(
         "Final Train Cross Entropy Loss:",
         cross_entropy_loss(Y_train, model.forward(X_train)),
