@@ -7,14 +7,13 @@ from torch import nn
 from dataloaders import load_cifar10
 from trainer import Trainer, compute_loss_and_accuracy
 from torchsummary import summary
-from task3_without_best_improvement import Task3Model_Old
 
 
 ##Task 3a
 #Model from task2 copied as a starting point
 
 
-class Task3Model(nn.Module):
+class Task3Model_Old(nn.Module):
     def __init__(self, image_channels, num_classes):
         """
         Is called when model is initialized.
@@ -48,7 +47,6 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters),
             nn.ELU(),
             #layer2
             nn.Conv2d(
@@ -58,7 +56,6 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters),
             nn.ELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
@@ -70,7 +67,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*2),
+            
             nn.ELU(),
             #layer4
             nn.Conv2d(
@@ -80,7 +77,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*2),
+            
             nn.ELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             #layer5
@@ -91,7 +88,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*4),
+            
             nn.ELU(),
             #layer6
             nn.Conv2d(
@@ -101,7 +98,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*4),
+            
             nn.ELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             #After this layer the output of feature_extractor would be [batch_size, num_filters * 4, 4, 4]
@@ -114,7 +111,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*8),
+            
             nn.ELU(),
             nn.Dropout(0.4), #p = 0.4 best score for now, with 64 filters
 
@@ -126,7 +123,7 @@ class Task3Model(nn.Module):
                 stride=1,
                 padding=1,
             ),
-            nn.BatchNorm2d(num_filters*8),
+            
             nn.ELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
         )
@@ -188,87 +185,3 @@ def create_plots(trainer: Trainer, name: str):
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
     plt.show()
 
-
-
-
-def main():
-    # Set the random generator seed (parameters, shuffling etc).
-    # You can try to change this and check if you still get the same result!
-    utils.set_seed(0)
-    print(f"Using device: {utils.get_device()}")
-    epochs = 10
-    batch_size = 64
-    learning_rate = 5e-2
-    early_stop_count = 4
-    dataloaders = load_cifar10(batch_size)
-    
-
-    #train task 3 model with batch normalization
-    model = Task3Model(image_channels=3, num_classes=10)
-    trainer = Trainer(
-        batch_size, learning_rate, early_stop_count, epochs, model, dataloaders
-    )
-    trainer.train()
-    create_plots(trainer, "task3_model")
-    summary(model, (3, 32, 32))
-
-    #Train task 3 model without batch normalization
-    model2 = Task3Model_Old(image_channels=3, num_classes=10)
-    trainer2 = Trainer(
-        batch_size, learning_rate, early_stop_count, epochs, model2, dataloaders
-    )
-    trainer2.train()
-
-    #Calculate loss and accuracy for both models
-    train_loss1, train_accuracy1 = compute_loss_and_accuracy(dataloaders[0], model, torch.nn.CrossEntropyLoss())
-    val_loss1, val_accuracy1 = compute_loss_and_accuracy(dataloaders[1], model, torch.nn.CrossEntropyLoss())
-    test_loss1, test_accuracy1 = compute_loss_and_accuracy(dataloaders[2], model, torch.nn.CrossEntropyLoss())
-
-    train_loss2, train_accuracy2 = compute_loss_and_accuracy(dataloaders[0], model2, torch.nn.CrossEntropyLoss())
-    val_loss2, val_accuracy2 = compute_loss_and_accuracy(dataloaders[1], model2, torch.nn.CrossEntropyLoss())
-    test_loss2, test_accuracy2 = compute_loss_and_accuracy(dataloaders[2], model2, torch.nn.CrossEntropyLoss())
-
-    #Print the results
-    print("Results for Task 3 Model")
-    print(f"Training Loss: {train_loss1:.4f}, Training Accuracy: {train_accuracy1:.4f}")
-    print(f"Validation Loss: {val_loss1:.4f}, Validation Accuracy: {val_accuracy1:.4f}")
-    print(f"Test Loss: {test_loss1:.4f}, Test Accuracy: {test_accuracy1:.4f}")
-
-    print("Results for Task 3 Model without Batch Normalization")
-    print(f"Training Loss: {train_loss2:.4f}, Training Accuracy: {train_accuracy2:.4f}")
-    print(f"Validation Loss: {val_loss2:.4f}, Validation Accuracy: {val_accuracy2:.4f}")
-    print(f"Test Loss: {test_loss2:.4f}, Test Accuracy: {test_accuracy2:.4f}")
-
-
-    #Plotting the results in the same plot
-    plt.figure(figsize=(20, 8))
-    plt.subplot(1, 2, 1)
-    plt.title("Cross Entropy Loss")
-    utils.plot_loss(
-        trainer.train_history["loss"], label="Training los", npoints_to_average=10
-    )
-    utils.plot_loss(trainer.validation_history["loss"], label="Validation loss")
-    utils.plot_loss(
-        trainer2.train_history["loss"], label="Training loss without batch normalization", npoints_to_average=10
-    )
-    utils.plot_loss(trainer2.validation_history["loss"], label="Validation loss without batch normalization")
-    plt.legend()
-
-    plt.subplot(1, 2, 2)
-    plt.title("Accuracy")
-    utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
-    utils.plot_loss(trainer2.validation_history["accuracy"], label="Validation Accuracy without batch normalization")
-    plt.legend()
-    plt.savefig("plots/task3_model_comparison.png")
-    plt.show()
-
-
-    '''
-    # Print the results
-    print(f"Training Loss: {train_loss:.4f}, Training Accuracy: {train_accuracy:.4f}")
-    print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}")
-    print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.4f}")
-    '''
-
-if __name__ == "__main__":
-    main()
