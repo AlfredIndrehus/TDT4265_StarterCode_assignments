@@ -1,0 +1,21 @@
+yolov8s_custom  - Parameter
+
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=50,
+   batch=8,
+   name='yolov8s_custom')
+
+yolov8s_rotate - Parameters
+'''
+# Training.
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=50,
+   batch=8,
+   degrees = 180,
+   name='yolov8s_rotate',)
+
+
+
+

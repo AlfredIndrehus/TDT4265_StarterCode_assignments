@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 #Loading the model
-model = YOLO('runs/detect/yolov8s_custom/weights/best.pt')
+model = YOLO('runs/detect/yolov8m_run1/weights/best.pt')
 
 #Prediction
 

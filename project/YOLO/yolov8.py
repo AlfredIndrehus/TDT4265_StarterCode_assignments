@@ -13,7 +13,8 @@ results = model.train(
    data='project/YOLO/data.yaml',
    epochs=50,
    batch=8,
-   name='yolov8s_custom')
+   shear = 45,
+   name='yolov8s_shear_90',)
 
 
 
