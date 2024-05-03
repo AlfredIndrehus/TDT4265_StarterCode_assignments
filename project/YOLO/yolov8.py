@@ -1,21 +1,15 @@
+
 from ultralytics import YOLO
- 
+
 # Load the model.
-model = YOLO('yolov8s.pt')
 
+model = YOLO('yolov8m.pt')
 
-'''
-Batch: -1 - Autobatch, dynamicallyt adjusts batch size based on GPU memory available
-
-'''
 # Training.
 results = model.train(
    data='project/YOLO/data.yaml',
-   epochs=50,
-   batch=8,
-   shear = 45,
-   name='yolov8s_shear_90',)
-
-
-
+   epochs=30,
+   batch=-1,
+   crop_fraction = 0.7,
+   name='yolov8m_crop_Fraction_final_run',)
 

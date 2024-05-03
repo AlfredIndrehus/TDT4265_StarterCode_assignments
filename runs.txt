@@ -16,6 +16,36 @@ results = model.train(
    degrees = 180,
    name='yolov8s_rotate',)
 
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=50,
+   batch=16,
+   name='yolov8s_bs=16',)
+
+Et run med adamW optimizer
+# Training.
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=30,
+   batch=-1,
+   optimizer = 'AdamW', 
+   name='yolov8s_AdamW',)
+
+   # 
 
 
 
+ferdig på 0.98 timar
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=30,
+   batch=-1,
+   name='yolov8m_first_run',)
+
+ferdig på 0.36 timar!!   
+results = model.train(
+   data='project/YOLO/data.yaml',
+   epochs=30,
+   batch=-1,
+   crop_fraction = 0.8,
+   name='yolov8m_crop',)
